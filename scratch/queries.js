@@ -7,27 +7,27 @@ const Note = require('../models/note');
 
 
 //Find notes using Note.find
-// mongoose.connect(MONGODB_URI)
-//   .then(() => {
-//     const searchTerm = 'lady gaga';
-//     let filter = {};
+mongoose.connect(MONGODB_URI)
+  .then(() => {
+    const searchTerm = 'reason';
 
-//     if (searchTerm) {
-//       filter.title = { $regex: searchTerm, $options: 'i' };
-//     }
+    if (searchTerm) {
+      return Note.find( { $or: [ 
+        { title: { $regex: searchTerm, $options: 'i' }}, 
+        { content: { $regex: searchTerm, $options: 'i' }}
+      ]});
+    }}) 
 
-//     return Note.find(filter).sort({ updatedAt: 'desc' });
-//   })
-//   .then(results => {
-//     console.log(results);
-//   })
-//   .then(() => {
-//     return mongoose.disconnect();
-//   })
-//   .catch(err => {
-//     console.error(`ERROR: ${err.message}`);
-//     console.error(err);
-//   });
+  .then(results => {
+    console.log(results);
+  })
+  .then(() => {
+    return mongoose.disconnect();
+  })
+  .catch(err => {
+    console.error(`ERROR: ${err.message}`);
+    console.error(err);
+  });
 
 // Find note by id using Note.findById
 // mongoose.connect(MONGODB_URI)
@@ -88,18 +88,18 @@ const Note = require('../models/note');
 //   });
 
 //Delete a note by id using Note.findByIdAndRemove
-mongoose.connect(MONGODB_URI)
-  .then(() => {
-    const id = '000000000000000000000014';
-    return Note.findByIdAndRemove(id)
-      .then(results => {
-        console.log(results, `${id} is being removed`);
-      });
-  }) 
-  .then(() => {
-    return mongoose.disconnect();
-  })
-  .catch(err => {
-    console.error(`ERROR: ${err.message}`);
-    console.error(err);
-  });
+// mongoose.connect(MONGODB_URI)
+//   .then(() => {
+//     const id = '000000000000000000000014';
+//     return Note.findByIdAndRemove(id)
+//       .then(results => {
+//         console.log(results, `${id} is being removed`);
+//       });
+//   }) 
+//   .then(() => {
+//     return mongoose.disconnect();
+//   })
+//   .catch(err => {
+//     console.error(`ERROR: ${err.message}`);
+//     console.error(err);
+//   });

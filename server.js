@@ -13,6 +13,7 @@ const foldersRouter = require('./routes/folders');
 const tagsRouter = require('./routes/tags');
 const usersRouter = require('./routes/users');
 const authRouter = require('./routes/auth');
+const jwtStrategy = require('./passport/jwt');
 
 // Create an Express application
 const app = express();
@@ -30,6 +31,7 @@ app.use(express.json());
 
 //Configure Passport to utilize the strategy
 passport.use(localStrategy);
+passport.use(jwtStrategy);
 
 // Mount routers
 app.use('/api/notes', notesRouter);

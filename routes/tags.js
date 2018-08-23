@@ -14,8 +14,8 @@ router.use('/', passport.authenticate('jwt', { session: false, failWithError: tr
 
 /* ========== GET/READ ALL ITEMS ========== */
 router.get('/', (req, res, next) => {
-
-  Tag.find()
+  const userId = req.user.id;
+  Tag.find({userId: userId})
     .sort('name')
     .then(results => {
       res.json(results);
@@ -28,6 +28,7 @@ router.get('/', (req, res, next) => {
 /* ========== GET/READ A SINGLE ITEM ========== */
 router.get('/:id', (req, res, next) => {
   const { id } = req.params;
+  const userId = req.user.id;
 
   /***** Never trust users - validate input *****/
   if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -36,7 +37,7 @@ router.get('/:id', (req, res, next) => {
     return next(err);
   }
 
-  Tag.findById(id)
+  Tag.findOne({_id: id, userId: userId})
     .then(result => {
       if (result) {
         res.json(result);
@@ -54,12 +55,17 @@ router.post('/', (req, res, next) => {
   const { name } = req.body;
 
   const newTag = { name };
+  const userId = req.user.id;
 
   /***** Never trust users - validate input *****/
   if (!name) {
     const err = new Error('Missing `name` in request body');
     err.status = 400;
     return next(err);
+  }
+
+  if (userId) {
+    newTag.userId = userId;
   }
 
   Tag.create(newTag)
@@ -94,8 +100,9 @@ router.put('/:id', (req, res, next) => {
   }
 
   const updateTag = { name };
+  const userId = req.user.id;
 
-  Tag.findByIdAndUpdate(id, updateTag, { new: true })
+  Tag.findOneAndUpdate({_id: id, userId: userId}, updateTag, { new: true })
     .then(result => {
       if (result) {
         res.json(result);
@@ -123,15 +130,17 @@ router.delete('/:id', (req, res, next) => {
     return next(err);
   }
 
-  const tagRemovePromise = Tag.findByIdAndRemove(id);
+  const userId = req.user.id;
+  const tagRemovePromise = Tag.findOneAndRemove({_id: id, userId: userId});
 
   const noteUpdatePromise = Note.updateMany(
-    { tags: id },
+    { tags: id, userId: userId },
     { $pull: { tags: id } }
   );
 
   Promise.all([tagRemovePromise, noteUpdatePromise])
     .then(() => {
+      //sends this status even if could not actually delete--fix this later
       res.sendStatus(204);
     })
     .catch(err => {
